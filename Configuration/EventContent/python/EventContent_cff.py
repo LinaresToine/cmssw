@@ -177,6 +177,18 @@ RAWEventContent = cms.PSet(
 RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 
+ReservedRAWEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep  FEDRawDataCollection_rawDataCollector_*_*',
+        'keep  FEDRawDataCollection_source_*_*'),
+    splitLevel = cms.untracked.int32(0),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
+ReservedRAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+ReservedRAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+
+
 from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
 approxSiStripClusters.toModify(RAWEventContent,
                               outputCommands = RAWEventContent.outputCommands+[
@@ -188,6 +200,8 @@ approxSiStripClusters.toModify(RAWEventContent,
 # HLTSCOUT Data Tier definition
 #
 #
+
+
 HLTSCOUTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
