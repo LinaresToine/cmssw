@@ -23,6 +23,7 @@ def repackProcess(**args):
     from Configuration.EventContent.EventContent_cff import RAWEventContent
     from Configuration.EventContent.EventContent_cff import HLTSCOUTEventContent
     from Configuration.EventContent.EventContent_cff import L1SCOUTEventContent
+    from Configuration.EventContent.EventContent_cff import ReservedRAWEventContent
     process = cms.Process("REPACK")
     process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -45,10 +46,15 @@ def repackProcess(**args):
         )
 
     defaultDataTier = "RAW"
-
     # Should we default to something if dataTier arg isn't provided?
     dataTier = args.get('dataTier', defaultDataTier)
-    eventContent = RAWEventContent
+    reservedRaw = args.get('reservedRaw', False)
+    
+    if reservedRaw:
+        eventContent = ReservedRAWEventContent
+    else:
+        eventContent = RAWEventContent
+
     if dataTier == "HLTSCOUT":
         eventContent = HLTSCOUTEventContent
     elif dataTier == "L1SCOUT":
