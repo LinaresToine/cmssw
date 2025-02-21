@@ -7,7 +7,7 @@ Module that generates standard repack configurations
 """
 import copy
 import FWCore.ParameterSet.Config as cms
-
+from Configuration.AlCa.GlobalTag import GlobalTag
 
 def repackProcess(**args):
     """
@@ -26,6 +26,9 @@ def repackProcess(**args):
     process = cms.Process("REPACK")
     process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
+    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+    process.GlobalTag = GlobalTag(process.GlobalTag, args.get("GT"), '')
+    
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
     process.configurationMetadata = cms.untracked.PSet(
@@ -61,8 +64,16 @@ def repackProcess(**args):
 
     for output in outputs:
 
+        rawSkim = output.get('rawSkim', None)
+        if rawSkim:
+            from Configuration.Skimming.RAWSkims import *
+            skim = getattr(RAWSkims, rawSkim)
+            path = cms.Path(skim)
+            selectEvents = f"{rawSkim}Path"
+        else:
+            selectEvents = output.get('selectEvents', None)
+        
         moduleLabel = output['moduleLabel']
-        selectEvents = output.get('selectEvents', None)
         maxSize = output.get('maxSize', None)
 
         outputModule = cms.OutputModule(
