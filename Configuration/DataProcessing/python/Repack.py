@@ -7,6 +7,7 @@ Module that generates standard repack configurations
 """
 import copy
 import FWCore.ParameterSet.Config as cms
+import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 import Configuration.Skimming.RAWSkims_cff as RawSkims
 from Configuration.AlCa.GlobalTag import GlobalTag
 
@@ -67,17 +68,23 @@ def repackProcess(**args):
     
     for output in outputs:
 
+        selectEventsBase = output.get('selectEvents', None)
         rawSkim = output.get('rawSkim', None)
         if rawSkim:
             
+            selectEventsBase = selectEventsBase.replace(":HLT", "")
+            process.baseSelection = hlt.hltHighLevel.clone(
+                TriggerResultsTag = "TriggerResults::HLT",
+                HLTPaths = cms.vstring(selectEventsBase)
+            )
             skim = getattr(RawSkims, rawSkim)
             setattr(process, rawSkim, skim)
-            path = cms.Path(skim)
+            path = cms.Path(skim + process.baseSelection)
             selectEvents = f"{rawSkim}Path"
             setattr(process, selectEvents, path)
 
         else:
-            selectEvents = output.get('selectEvents', None)
+            selectEvents = selectEventsBase
 
         moduleLabel = output['moduleLabel']
         maxSize = output.get('maxSize', None)
