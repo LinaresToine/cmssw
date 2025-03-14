@@ -69,7 +69,7 @@ def repackProcess(**args):
     #    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     #    process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
     
-    for output in outputs
+    for output in outputs:
 
         selectEventsBase = output.get('rawSkim', "NoRawSkimProvided")
         rawSkim = output.get('rawSkim', None)
