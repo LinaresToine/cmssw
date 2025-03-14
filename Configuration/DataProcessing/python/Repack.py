@@ -63,15 +63,15 @@ def repackProcess(**args):
     if len(outputs) > 0:
         process.outputPath = cms.EndPath()
         
-    globalTag = args.get('globalTag', None)   
+    #globalTag = args.get('globalTag', None)   
     print("+++ globalTag = {} +++".format(globalTag))
-    if globalTag:
-        process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-        process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
+    #if globalTag:
+    #    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+    #    process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
     
-    for output in outputs:
+    for output in outputs
 
-        selectEventsBase = output.get('selectEvents', None)
+        selectEventsBase = output.get('rawSkim', "NoRawSkimProvided")
         rawSkim = output.get('rawSkim', None)
         print("+++ rawSkim = {} +++".format(rawSkim))
 
