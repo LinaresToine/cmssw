@@ -8,7 +8,7 @@ Module that generates standard repack configurations
 import copy
 import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
-import Configuration.Skimming.PDWG_ReserveDMu_SD_cff as RawSkims
+import Configuration.Skimming.RAWSkims_cff as RawSkims
 from Configuration.AlCa.GlobalTag import GlobalTag
 
 def repackProcess(**args):
@@ -20,6 +20,12 @@ def repackProcess(**args):
     supported options:
 
     - outputs      : defines output modules
+    - globalTag    : contains trigger paths for the selected raw skims in outputs
+
+    Additional comments:
+
+    The selectEvents parameter within the outputs option is of type list, provided by T0.
+    The paths in the list have an added ":HLT" to the string, which needs to be removed for propper use of the raw skim machinery.
 
     """
     from Configuration.EventContent.EventContent_cff import RAWEventContent
@@ -47,8 +53,7 @@ def repackProcess(**args):
     )
 
     defaultDataTier = "RAW"
-    
-    print("+++ args = {} +++".format(args))
+
     # Should we default to something if dataTier arg isn't provided?
     dataTier = args.get('dataTier', defaultDataTier)
     eventContent = RAWEventContent
@@ -58,27 +63,29 @@ def repackProcess(**args):
         eventContent = L1SCOUTEventContent
 
     outputs = args.get('outputs', [])
-    print("+++ outputs = {} +++".format(outputs))
 
     if len(outputs) > 0:
         process.outputPath = cms.EndPath()
         
-    #globalTag = args.get('globalTag', None)   
+    globalTag = args.get('globalTag', None) 
     print("+++ globalTag = {} +++".format(globalTag))
-    #if globalTag:
-    #    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-    #    process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
+    
+    if globalTag:
+        process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+        process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
     
     for output in outputs:
 
-        selectEventsBase = output.get('rawSkim', "NoRawSkimProvided")
+        selectEventsBase = output.get('selectEvents', None)
         rawSkim = output.get('rawSkim', None)
         print("+++ rawSkim = {} +++".format(rawSkim))
 
         if rawSkim:
+            print("+++ Entering Raw Skim IF Statement +++")
+
+            selectEventsBase = [item.replace(":HLT", "") for item in selectEventsBase]
+            print(" +++ selectEventsBase = {} +++".format(selectEventsBase))
             
-            selectEventsBase = selectEventsBase.replace(":HLT", "")
-            print("+++ In rawSkim conditional: selectEventsBase = {} +++".format(selectEventsBase))
             process.baseSelection = hlt.hltHighLevel.clone(
                 TriggerResultsTag = "TriggerResults::HLT",
                 HLTPaths = cms.vstring(selectEventsBase)
@@ -91,7 +98,6 @@ def repackProcess(**args):
 
         else:
             selectEvents = selectEventsBase
-            print("+++ Else not rawSkim: selectEventsBase = {} +++".format(selectEventsBase))
 
         moduleLabel = output['moduleLabel']
         maxSize = output.get('maxSize', None)
