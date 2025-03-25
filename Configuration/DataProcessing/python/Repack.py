@@ -63,7 +63,8 @@ def repackProcess(**args):
         eventContent = L1SCOUTEventContent
 
     outputs = args.get('outputs', [])
-
+    print("+++ outputs = {} +++".format(outputs))
+    
     if len(outputs) > 0:
         process.outputPath = cms.EndPath()
         
