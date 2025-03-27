@@ -43,7 +43,11 @@ def repackProcess(**args):
         "NewEventStreamFileReader",
         fileNames = cms.untracked.vstring()
         )
-
+    
+    process.SiteLocalConfigService = cms.Service("SiteLocalConfigService", 
+            overrideSourceTimeout = cms.untracked.uint32(600)
+    )
+    
     defaultDataTier = "RAW"
 
     # Should we default to something if dataTier arg isn't provided?
