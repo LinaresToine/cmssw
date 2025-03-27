@@ -91,7 +91,11 @@ class Reco(Scenario):
         
         process = cms.Process('RECO', cms.ModifierChain(self.eras, self.promptModifiers) )
         cb = ConfigBuilder(options, process = process, with_output = True)
-
+        
+        process.SiteLocalConfigService = cms.Service("SiteLocalConfigService", 
+                overrideSourceTimeout = cms.untracked.uint32(600)
+        )
+        
         # Input source
         process.source = cms.Source("PoolSource",
             fileNames = cms.untracked.vstring()
